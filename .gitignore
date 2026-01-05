@@ -1,5 +1,8 @@
 .DS_Store
 DerivedData/
+build/
+dist/
 xcuserdata/
 *.xcuserstate
 *.swp
+*.dmg

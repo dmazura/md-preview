@@ -68,6 +68,16 @@ After successful testing:
 4. Launch the app at least once
 5. Restart Finder or log out/in
 
+### 5. Create a Drag-and-Drop Installer (.dmg)
+
+Build and package the app into a DMG that users can drag into `/Applications`:
+
+```bash
+./scripts/build_dmg.sh --build
+```
+
+The DMG is created at `dist/MarkdownPreview.dmg`.
+
 ## Testing
 
 Test with various Markdown files:
