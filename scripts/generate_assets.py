@@ -102,7 +102,7 @@ def draw_text(pixels, width, height, text, x, y, scale, color):
             for col in range(glyph_w):
                 if glyph[row][col] == "#":
                     px = cursor_x + col * scale
-                    py = y + (glyph_h - 1 - row) * scale
+                    py = y + row * scale
                     fill_rect(pixels, width, height, px, py, scale, scale, color)
         cursor_x += glyph_w * scale + spacing
 
@@ -132,8 +132,8 @@ def generate_dmg_background(path):
 
     arrow_color = (120, 128, 140, 255)
     center_y = int(height * 0.52)
-    start_x = int(width * 0.38)
-    end_x = int(width * 0.62)
+    start_x = 240
+    end_x = 400
     draw_line(pixels, width, height, start_x, center_y, end_x, center_y, arrow_color, thickness=6)
     draw_line(pixels, width, height, end_x, center_y, end_x - 18, center_y + 10, arrow_color, thickness=6)
     draw_line(pixels, width, height, end_x, center_y, end_x - 18, center_y - 10, arrow_color, thickness=6)

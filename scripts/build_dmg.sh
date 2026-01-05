@@ -43,11 +43,10 @@ fi
 mkdir -p "${DIST_DIR}"
 STAGING_DIR="$(mktemp -d "${DIST_DIR}/dmg-staging.XXXXXX")"
 RW_DMG="${DIST_DIR}/MarkdownPreview.tmp.dmg"
-MOUNT_DIR="${DIST_DIR}/mnt"
+MOUNT_DIR=""
 cleanup() {
-  if [[ -d "${MOUNT_DIR}" ]]; then
+  if [[ -n "${MOUNT_DIR}" ]]; then
     hdiutil detach "${MOUNT_DIR}" -quiet || true
-    rmdir "${MOUNT_DIR}" 2>/dev/null || true
   fi
   rm -f "${RW_DMG}"
   rm -rf "${STAGING_DIR}"
@@ -68,34 +67,43 @@ hdiutil create \
   -size 160m \
   "${RW_DMG}" >/dev/null
 
-mkdir -p "${MOUNT_DIR}"
-hdiutil attach -readwrite -noverify -noautoopen -mountpoint "${MOUNT_DIR}" "${RW_DMG}" >/dev/null
+MOUNT_DIR=$(hdiutil attach -readwrite -noverify -noautoopen "${RW_DMG}" | awk '/\/Volumes/ {print $3; exit}')
 
 mkdir -p "${MOUNT_DIR}/.background"
 cp "${BG_IMAGE}" "${MOUNT_DIR}/.background/background.png"
 
-osascript <<EOF
+for attempt in 1 2 3 4 5; do
+  if osascript <<EOF
 tell application "Finder"
+  repeat until exists disk "${VOLUME_NAME}"
+    delay 0.5
+  end repeat
   tell disk "${VOLUME_NAME}"
     open
     delay 1
-    set current view of container window to icon view
-    set toolbar visible of container window to false
-    set statusbar visible of container window to false
-    set the bounds of container window to {100, 100, 740, 500}
-    set viewOptions to the icon view options of container window
+    set dmgWindow to container window
+    set current view of dmgWindow to icon view
+    set toolbar visible of dmgWindow to false
+    set statusbar visible of dmgWindow to false
+    set the bounds of dmgWindow to {100, 100, 740, 500}
+    set viewOptions to the icon view options of dmgWindow
     set arrangement of viewOptions to not arranged
     set icon size of viewOptions to 128
-    set background picture of viewOptions to POSIX file "${MOUNT_DIR}/.background/background.png"
+    set background picture of viewOptions to file ".background:background.png"
     set position of item "${APP_NAME}" to {180, 210}
-    set position of item "Applications" to {500, 210}
-    close
+    set position of item "Applications" to {460, 210}
+    close dmgWindow
     open
     update without registering applications
     delay 1
   end tell
 end tell
 EOF
+  then
+    break
+  fi
+  sleep 1
+done
 
 hdiutil detach "${MOUNT_DIR}" -quiet
 rmdir "${MOUNT_DIR}" 2>/dev/null || true
