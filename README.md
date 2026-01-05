@@ -78,6 +78,19 @@ Build and package the app into a DMG that users can drag into `/Applications`:
 
 The DMG is created at `dist/MarkdownPreview.dmg`.
 
+### Branding Assets
+
+Generate the logo and DMG background:
+
+```bash
+python3 scripts/generate_assets.py
+./scripts/generate_app_icon.sh
+```
+
+This creates:
+- `assets/icon-1024.png`
+- `assets/dmg-background.png`
+
 ## Testing
 
 Test with various Markdown files:
